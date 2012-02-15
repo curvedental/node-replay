@@ -4,7 +4,7 @@
     "description": "An http client that subscribes to a redis queue of requests and redirects them",
     "engines": {
         "node": ">= 0.4.1",
-        "coffee", ">= 1.1.2"
+        "coffee": ">= 1.1.2"
     },
     "dependencies": {
        "coffee-script": ">= 1.1.2",

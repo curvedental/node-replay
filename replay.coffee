@@ -3,7 +3,7 @@ rest = require 'restler'
 
 env = require './environment'
 URLRewrite = require './url_rewrite'
-ReplayClient = require './replay_client'
+ReplayClient = require './lib/replay_client'
 
 urlRewrite = new URLRewrite(env)
 replay = new ReplayClient(urlRewrite, rest)
