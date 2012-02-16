@@ -32,13 +32,30 @@ class ReplayClient
         @_requestAuthCookie request, clientId, (cookie) =>
             method = request.method.toLowerCase()
 
-            opts = @urlRewrite.getOptions cookie, request.post 
+            opts = @urlRewrite.getOptions cookie, @parse(request.post,'')
 
             pipe = @rest[method] proxyURL, opts
             pipe.on 'complete', (data, response) -> 
                 console.log "---> Replayed: ", response.statusCode, method, proxyURL, "( length: #{JSON.stringify(data).length} )"
             pipe.on 'error', (error) -> 
                 console.error "WTF", error
+
+    parse: (data_obj, property_prefix) ->
+        result = {}
+        for index,value of data_obj
+            result_index = @createPropertyIndex(property_prefix, index)
+            if typeof value == "string"
+                result[result_index] = value
+            else
+                for nested_index, nested_value of @parse(value, result_index)
+                    result[nested_index] = nested_value
+
+        result
+
+    createPropertyIndex: (prefix, index) ->
+        if prefix == ''
+            return index
+        return prefix + "["+index+"]"
 
 module.exports = ReplayClient
 
