@@ -25,7 +25,7 @@ class ReplayClient
             @_logIn request, clientId, callback
 
     send: (request) -> 
-        console.log "<--- Received: ", request['method'], request['path'], request['post']
+        console.log "<--- Received: ", request.server_info.HTTP_HOST, request['method'], request['path'], request['post']
         proxyURL = @urlRewrite.getURL request
         clientId = @urlRewrite.getClientId proxyURL 
 
