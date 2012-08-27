@@ -1,6 +1,6 @@
 class URLRewrite
     constructor: (@env) ->
-        @userAgent = @env.get 'ReplayLogger'
+        @userAgent = @env.get 'userAgent'
 
     loginURL: (request) ->
         basePathRegex = @env.get 'basePathRegex'
