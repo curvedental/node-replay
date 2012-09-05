@@ -15,11 +15,13 @@ config =
         path:
             regex: /^\/([a-z]*)\//
             replace: '/$1_replay/'
+        whiteList: [/.*_replay/]
 
     production:
         clientRegex: /^([^\.]*)/            
         host:
             regex: /example\.com/       
             replace: 'replay_example.com'
+        whiteList: [/^http[s]*:\/\/[^.]*\.replay_example.com\/.*/]
 
 module.exports = config

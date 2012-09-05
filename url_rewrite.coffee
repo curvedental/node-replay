@@ -1,10 +1,10 @@
 class URLRewrite
-    constructor: (@env) ->
-        @userAgent = @env.get 'userAgent'
+    constructor: (env) ->
+        @env = env
 
     loginURL: (request) ->
         basePathRegex = @env.get 'basePathRegex'
-        if basePathRegex 
+        if basePathRegex
             prefix = request.path.match(basePathRegex)[1]
         else
             prefix = ''
@@ -14,12 +14,12 @@ class URLRewrite
     loginData: ->
         opts = 
             headers:
-                'User-Agent': @userAgent 
+                'User-Agent': @_userAgent
             data: @env.get 'authData'
 
     getOptions: (cookie, postData) ->
         headers:
-            'User-Agent': @userAgent 
+            'User-Agent': @_userAgent
             'Cookie': cookie
         data: postData
         followRedirects: false
@@ -48,5 +48,16 @@ class URLRewrite
         path = @processPath inpath
 
         "#{protocol}#{host}#{path}"
+
+    isSafeUrl: (url) ->
+        console.log('testing url', url);
+        @_whiteList().some (pattern) ->
+            url.match(pattern)
+
+    _userAgent: () ->
+        @userAgent = @userAgent || @env.get 'userAgent'
+
+    _whiteList: () ->
+        @whiteList = @whiteList || @env.get 'whiteList'
 
 module.exports = URLRewrite

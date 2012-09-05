@@ -6,17 +6,25 @@ class ReplayClient
     _authorized: (clientId) ->
         @authCookies[clientId]?
 
+    _makeRequest: (method, url, data, successCallback, errorCallback) ->
+        if @urlRewrite.isSafeUrl url
+            request = @rest[method] url, data
+            request.on( 'complete', successCallback )
+            request.on( 'error', errorCallback )
+        else
+            errorCallback( "Ignoring request because it is not whitelisted: [" + url + "]" )
+
     _logIn: (request, clientId, callback) ->
         loginURL = @urlRewrite.loginURL(request)
         loginData = @urlRewrite.loginData()
-            
-        post = @rest.post loginURL, loginData
-        post.on 'complete', (data, response) =>
+
+        onSuccess = (data, response) =>
             @authCookies[clientId] = response.headers['set-cookie']
             console.log " --> got cookie for:", clientId, @authCookies[clientId], "from", loginURL
             callback @authCookies[clientId]
-        post.on 'error', (error) =>
-            console.log "WTF", error
+        onError = (error) =>
+            console.log "Error logging in:", error
+        @_makeRequest 'post', loginURL, loginData, onSuccess, onError
 
     _requestAuthCookie: (request, clientId, callback) ->
         if @_authorized(clientId)
@@ -34,11 +42,11 @@ class ReplayClient
 
             opts = @urlRewrite.getOptions cookie, @parse(request.post,'')
 
-            pipe = @rest[method] proxyURL, opts
-            pipe.on 'complete', (data, response) -> 
+            onSuccess = (data, response) =>
                 console.log "---> Replayed: ", response.statusCode, method, proxyURL, "( length: #{JSON.stringify(data).length} )"
-            pipe.on 'error', (error) -> 
-                console.error "WTF", error
+            onError = (error) =>
+                console.error "ERROR", error
+            @_makeRequest method, proxyURL, opts, onSuccess, onError
 
     parse: (data_obj, property_prefix) ->
         result = {}
