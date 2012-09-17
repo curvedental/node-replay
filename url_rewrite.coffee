@@ -14,12 +14,12 @@ class URLRewrite
     loginData: ->
         opts = 
             headers:
-                'User-Agent': @_userAgent
+                'User-Agent': @_userAgent()
             data: @env.get 'authData'
 
     getOptions: (cookie, postData) ->
         headers:
-            'User-Agent': @_userAgent
+            'User-Agent': @_userAgent()
             'Cookie': cookie
         data: postData
         followRedirects: false
@@ -50,7 +50,6 @@ class URLRewrite
         "#{protocol}#{host}#{path}"
 
     isSafeUrl: (url) ->
-        console.log('testing url', url);
         @_whiteList().some (pattern) ->
             url.match(pattern)
 

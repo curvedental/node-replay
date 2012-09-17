@@ -1,0 +1,8 @@
+{
+  "appenders": [
+    {
+      "type": "file",
+      "filename": "log/replay.log"
+    }
+  ]
+}

@@ -1,3 +1,6 @@
+log4js = require('log4js')
+log4js.configure('log4j.json')
+logger = log4js.getLogger()
 
 class ReplayClient
     constructor: (@urlRewrite, @rest) ->
@@ -20,10 +23,10 @@ class ReplayClient
 
         onSuccess = (data, response) =>
             @authCookies[clientId] = response.headers['set-cookie']
-            console.log " --> got cookie for:", clientId, @authCookies[clientId], "from", loginURL
+            logger.info " --> got cookie for:", clientId, @authCookies[clientId], "from", loginURL
             callback @authCookies[clientId]
         onError = (error) =>
-            console.log "Error logging in:", error
+            logger.error "Login failed", error
         @_makeRequest 'post', loginURL, loginData, onSuccess, onError
 
     _requestAuthCookie: (request, clientId, callback) ->
@@ -33,9 +36,10 @@ class ReplayClient
             @_logIn request, clientId, callback
 
     send: (request) -> 
-        console.log "<--- Received: ", request.server_info.HTTP_HOST, request['method'], request['path'], request['post']
+        logger.info "<--- Received: ", request.server_info.HTTP_HOST, request.session_id, request.start_time, request['method'], request['path'], request['post']
+
         proxyURL = @urlRewrite.getURL request
-        clientId = @urlRewrite.getClientId proxyURL 
+        clientId = @urlRewrite.getClientId proxyURL
 
         @_requestAuthCookie request, clientId, (cookie) =>
             method = request.method.toLowerCase()
@@ -43,9 +47,9 @@ class ReplayClient
             opts = @urlRewrite.getOptions cookie, @parse(request.post,'')
 
             onSuccess = (data, response) =>
-                console.log "---> Replayed: ", response.statusCode, method, proxyURL, "( length: #{JSON.stringify(data).length} )"
+                logger.info "---> Replayed: ", request.session_id, request.start_time, response.statusCode, method, proxyURL, "( length: #{JSON.stringify(data).length} )"
             onError = (error) =>
-                console.error "ERROR", error
+                logger.error error
             @_makeRequest method, proxyURL, opts, onSuccess, onError
 
     parse: (data_obj, property_prefix) ->
