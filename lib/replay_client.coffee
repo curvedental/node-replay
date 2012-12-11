@@ -22,6 +22,9 @@ class ReplayClient
         loginData = @urlRewrite.loginData()
 
         onSuccess = (data, response) =>
+            if response == null
+                logger.info " --> UNKNOWN - failed to get cookie for:", clientId, "from", loginURL
+                return
             @authCookies[clientId] = response.headers['set-cookie']
             logger.info " --> got cookie for:", clientId, @authCookies[clientId], "from", loginURL
             callback @authCookies[clientId]
