@@ -47,7 +47,11 @@ class ReplayClient
             opts = @urlRewrite.getOptions cookie, @parse(request.post,'')
 
             onSuccess = (data, response) =>
-                logger.info "---> Replayed: ", request.session_id, request.start_time, response.statusCode, method, proxyURL, "( length: #{JSON.stringify(data).length} )"
+                if( response == null )
+                    statusCode = 'UNKNOWN'
+                else
+                    statusCode = response.statusCode
+                logger.info "---> Replayed: ", request.session_id, request.start_time, statusCode, method, proxyURL, "( length: #{JSON.stringify(data).length} )"
             onError = (error) =>
                 logger.error error
             @_makeRequest method, proxyURL, opts, onSuccess, onError
