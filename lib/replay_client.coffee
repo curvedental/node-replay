@@ -11,6 +11,9 @@ class ReplayClient
 
     _makeRequest: (method, url, data, successCallback, errorCallback) ->
         if @urlRewrite.isSafeUrl url
+            # Restler has a "del" method instead of "delete" because delete is a reserved word
+            if method == 'delete'
+                method = 'del'
             request = @rest[method] url, data
             request.on( 'complete', successCallback )
             request.on( 'error', errorCallback )
