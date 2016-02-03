@@ -28,7 +28,7 @@ class ReplayClient
             if response == null
                 logger.info " --> UNKNOWN - failed to get cookie for:", clientId, "from", loginURL
                 return
-            @authCookies[clientId] = response.headers['set-cookie']
+            @authCookies[clientId] = response.headers['set-cookie'].map((c) -> c.replace(/;.*$/, '')).join('; ')
             logger.info " --> got cookie for:", clientId, @authCookies[clientId], "from", loginURL
             callback @authCookies[clientId]
         onError = (error) =>
